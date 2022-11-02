@@ -1,0 +1,51 @@
+1. k create ns argocd
+
+2. k apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+3. get initial admin password
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+
+4. get api server UI 
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+
+5. Create different ns for argo rollout:
+ kubectl create namespace argo-rollouts
+
+6. controller installation:
+kubectl apply -n argo-rollouts -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml
+
+7. install argo demo app
+kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-rollouts/master/docs/getting-started/basic/rollout.yaml
+kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-rollouts/master/docs/getting-started/basic/service.yaml
+
+port forward UI
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+
+argo rollouts dashboard
+kubectl argo rollouts dashboard
+
+kubeview service dashboard
+kubectl port-forward svc/kubeview -n default 8089:80
+
+rollout preview service UI command
+k port-forward services/rollouts-preview  8085:80
+
+8. Install nginx-ingress via helm:
+helm repo add nginx-stable https://helm.nginx.com/stable
+helm repo update
+helm install nginx-ingress nginx-stable/nginx-ingress --set rbac.create=true
+kubectl get pods --all-namespaces -l app=nginx-ingress-nginx-ingress --> check pod is running
+kubectl get services nginx-ingress-nginx-ingress -->check external-ip of the service
+
+
+9. Get argo rollout status
+k argo rollouts get rollout rollouts-demo
+
+10 ref article :
+https://www.infracloud.io/blogs/progressive-delivery-argo-rollouts-blue-green-deployment/
+
+11. kubeview installation 
+https://chrisedrego.medium.com/kubernetes-monitoring-kubeview-86e59b13da18
+
+
+ 
